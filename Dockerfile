@@ -48,4 +48,4 @@ COPY ./package.json /root
 COPY ./lib /root/lib
 WORKDIR /root/
 RUN npm install
-RUN LDFLAGS="-lpulse -lpulse-simple" node-gyp rebuild --python="/usr/local/bin/python3.9"
+RUN  node-gyp rebuild --python="/usr/local/bin/python3.9"
