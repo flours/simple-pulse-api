@@ -62,23 +62,24 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
     ss.rate = sampling_rate;
     ss.format = PA_SAMPLE_S16LE;
     ss.channels=1;
-    std::cout<<source_name<<",source_name";
+    std::cout<<source_name<<",source_name\n";
     pa_simple *pa = pa_simple_new(NULL,"pulse_simple", PA_STREAM_RECORD, source_name.c_str(),"record_stream", &ss, NULL, NULL, &pa_errno);
     if (pa == NULL) {
-      std::cout<<"pa new Error";
+      std::cout<<"pa new Error\n";
     }
     auto callback = []( Napi::Env env, Napi::Function jsCallback, char* value ) {
       // Transform native data into JS data, passing it to the provided
       // `jsCallback` -- the TSFN's JavaScript function.
       jsCallback.Call( {Napi::Buffer<char>::Copy( env, value,(size_t)DATA_SIZE )} );
-
       // We're finished with the data.
       //delete value;
+      delete value;
     };
 
-    char data[DATA_SIZE];
+    char* data;
     while(true)
     {
+      data=new char[DATA_SIZE];
       // Create new data
       pa_result = pa_simple_read(pa,data,DATA_SIZE,&pa_errno);
       if(pa_result<0){
