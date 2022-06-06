@@ -2,6 +2,6 @@
 
 ## installation
 ```
-npm install git+https://github.com/flours/simplu-pulse-api
+npm install git+https://github.com/flours/simple-pulse-api
 ```
 
