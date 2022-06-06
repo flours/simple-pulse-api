@@ -84,6 +84,9 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
       if(pa_result<0){
         break;
       }
+      FILE *fp=fopen("record.pcm","ab+");
+      fwrite(data,sizeof(char),DATA_SIZE,fp);
+      fclose(fp);
       if(stop_flag)break;
       // Perform a blocking call
       napi_status status = tsfn.BlockingCall(data, callback );
