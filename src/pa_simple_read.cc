@@ -41,7 +41,7 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
     throw Napi::TypeError::New( env, "Expected third arg to be string" );
   }
   int sampling_rate= info[1].As<Napi::Number>().Int32Value();
-  std::string stream_name= info[2].As<Napi::String>().ToString();
+  std::string source_name= info[2].As<Napi::String>().ToString();
 
   // Create a ThreadSafeFunction
   tsfn = Napi::ThreadSafeFunction::New(
@@ -55,29 +55,30 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
       } );
 
   stop_flag=false;
-  nativeThread = std::thread( [this,sampling_rate,stream_name] {
+  nativeThread = std::thread( [this,sampling_rate,source_name] {
     std::cout<<__LINE__;
     int pa_errno,pa_result;
     pa_sample_spec ss;
     ss.rate = sampling_rate;
     ss.format = PA_SAMPLE_S16LE;
     ss.channels=1;
-    pa_simple *pa = pa_simple_new(NULL,"rec", PA_STREAM_RECORD, NULL,stream_name.c_str(), &ss, NULL, NULL, &pa_errno);
+    pa_simple *pa = pa_simple_new(NULL,"pulse_simple", PA_STREAM_RECORD, source_name.c_str(),"record_stream", &ss, NULL, NULL, &pa_errno);
     if (pa == NULL) {
-      std::cout<<"pa new Error";
+      std::cout<<"pa new Error\n";
     }
     auto callback = []( Napi::Env env, Napi::Function jsCallback, char* value ) {
       // Transform native data into JS data, passing it to the provided
       // `jsCallback` -- the TSFN's JavaScript function.
       jsCallback.Call( {Napi::Buffer<char>::Copy( env, value,(size_t)DATA_SIZE )} );
-
       // We're finished with the data.
       //delete value;
+      delete value;
     };
 
-    char data[DATA_SIZE];
+    char* data;
     while(true)
     {
+      data=new char[DATA_SIZE];
       // Create new data
       pa_result = pa_simple_read(pa,data,DATA_SIZE,&pa_errno);
       if(pa_result<0){
