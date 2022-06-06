@@ -62,7 +62,6 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
     ss.rate = sampling_rate;
     ss.format = PA_SAMPLE_S16LE;
     ss.channels=1;
-    std::cout<<source_name<<",source_name\n";
     pa_simple *pa = pa_simple_new(NULL,"pulse_simple", PA_STREAM_RECORD, source_name.c_str(),"record_stream", &ss, NULL, NULL, &pa_errno);
     if (pa == NULL) {
       std::cout<<"pa new Error\n";
@@ -85,9 +84,6 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
       if(pa_result<0){
         break;
       }
-      FILE *fp=fopen("record.pcm","ab+");
-      fwrite(data,sizeof(char),DATA_SIZE,fp);
-      fclose(fp);
       if(stop_flag)break;
       // Perform a blocking call
       napi_status status = tsfn.BlockingCall(data, callback );
