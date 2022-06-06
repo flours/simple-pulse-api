@@ -63,7 +63,7 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
     ss.format = PA_SAMPLE_S16LE;
     ss.channels=1;
     std::cout<<stream_name<<",streamname";
-    pa_simple *pa = pa_simple_new(NULL,"rec", PA_STREAM_RECORD, NULL,stream_name.c_str(), &ss, NULL, NULL, &pa_errno);
+    pa_simple *pa = pa_simple_new(NULL,"rec", PA_STREAM_RECORD, stream_name.c_str(),NULL, &ss, NULL, NULL, &pa_errno);
     if (pa == NULL) {
       std::cout<<"pa new Error";
     }
