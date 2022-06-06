@@ -41,7 +41,7 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
     throw Napi::TypeError::New( env, "Expected third arg to be string" );
   }
   int sampling_rate= info[1].As<Napi::Number>().Int32Value();
-  std::string stream_name= info[2].As<Napi::String>().ToString();
+  std::string source_name= info[2].As<Napi::String>().ToString();
 
   // Create a ThreadSafeFunction
   tsfn = Napi::ThreadSafeFunction::New(
@@ -55,15 +55,15 @@ Napi::Value Pulse::record(const Napi::CallbackInfo& info){
       } );
 
   stop_flag=false;
-  nativeThread = std::thread( [this,sampling_rate,stream_name] {
+  nativeThread = std::thread( [this,sampling_rate,source_name] {
     std::cout<<__LINE__;
     int pa_errno,pa_result;
     pa_sample_spec ss;
     ss.rate = sampling_rate;
     ss.format = PA_SAMPLE_S16LE;
     ss.channels=1;
-    std::cout<<stream_name<<",streamname";
-    pa_simple *pa = pa_simple_new(NULL,"rec", PA_STREAM_RECORD, stream_name.c_str(),NULL, &ss, NULL, NULL, &pa_errno);
+    std::cout<<source_name<<",source_name";
+    pa_simple *pa = pa_simple_new(NULL,"pulse_simple", PA_STREAM_RECORD, source_name.c_str(),"record_stream", &ss, NULL, NULL, &pa_errno);
     if (pa == NULL) {
       std::cout<<"pa new Error";
     }
